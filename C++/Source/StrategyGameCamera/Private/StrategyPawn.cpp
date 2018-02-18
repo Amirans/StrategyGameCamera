@@ -48,8 +48,6 @@ void AStrategyPawn::BeginPlay()
 
 void AStrategyPawn::HandleEdgeScrolling()
 {
-	if (bIsRotatingCamera)
-		return;
 
 	if (!PlayerController)
 		return;
@@ -57,29 +55,69 @@ void AStrategyPawn::HandleEdgeScrolling()
 	float MouseX = 0.0f;
 	float MouseY = 0.0f;
 
-	PlayerController->GetMousePosition(MouseX, MouseY);
+	if (!PlayerController->GetMousePosition(MouseX, MouseY))
+		return;
 
 	int32 SizeX = 0;
 	int32 SizeY = 0;
 
-	PlayerController->GetViewportSize(SizeX,SizeY);
+	PlayerController->GetViewportSize(SizeX, SizeY);
 
 	if (MouseX < EdgeScrollingSensitivity) //Mouse is Close to Left
-
-		AddRight(-1);	
-
+	{
+		AddRight(-1);
+	}
 	else if (MouseX > SizeX - EdgeScrollingSensitivity) //Mouse is Close to Right
-
-		AddRight(1); 
+	{
+		AddRight(1);
+	}
 
 	if (MouseY < EdgeScrollingSensitivity) //Mouse is Close to Top
-
+	{
 		AddForward(1);
-
+	}
 	else if (MouseY > SizeY - EdgeScrollingSensitivity) //Mouse is Close to Bottom
-
+	{
 		AddForward(-1);
+	}
 
+}
+
+void AStrategyPawn::HandleCameraRotation()
+{
+	if (!PlayerController)
+		return;
+
+	float MouseXDelta = 0.0f;
+	float MouseYDelta = 0.0f;
+
+	PlayerController->GetInputMouseDelta(MouseXDelta, MouseYDelta);
+
+	PawnBaseCollsion->AddRelativeRotation(FRotator(0.0f, MouseXDelta * CameraRotationSpeed, 0.0f));
+
+	
+	float SpringArmY = SpringArm->RelativeRotation.Pitch;
+
+	SpringArmY += MouseYDelta * CameraRotationSpeed;
+
+	SpringArm->SetRelativeRotation(FRotator(FMath::Clamp(SpringArmY,-85.0f,-35.0f), 0.0f, 0.0f));
+
+}
+
+void AStrategyPawn::OnCameraRotation()
+{
+	bIsRotatingCamera = true;
+
+	if (PlayerController)
+		PlayerController->CurrentMouseCursor = EMouseCursor::GrabHandClosed;
+}
+
+void AStrategyPawn::OnCameraRotationReleased()
+{
+	bIsRotatingCamera = false;
+
+	if (PlayerController)
+		PlayerController->CurrentMouseCursor = EMouseCursor::Default;
 }
 
 // Called every frame
@@ -87,7 +125,11 @@ void AStrategyPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	HandleEdgeScrolling();
+	if (bIsRotatingCamera)
+		HandleCameraRotation();
+	else
+		HandleEdgeScrolling();
+
 }
 
 // Called to bind functionality to input
@@ -97,10 +139,15 @@ void AStrategyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AStrategyPawn::AddForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AStrategyPawn::AddRight);
+
 	PlayerInputComponent->BindAction("IncreaseCameraSpeed", IE_Pressed, this, &AStrategyPawn::OnIncreaseCameraSpeed);
 	PlayerInputComponent->BindAction("IncreaseCameraSpeed", IE_Released, this, &AStrategyPawn::OnIncreaseCameraSpeedReleased);
+
 	PlayerInputComponent->BindAction("ZoomIn", IE_Pressed, this, &AStrategyPawn::OnCameraZoomIn);
 	PlayerInputComponent->BindAction("ZoomOut", IE_Pressed, this, &AStrategyPawn::OnCameraZoomOut);
+
+	PlayerInputComponent->BindAction("RotateCamera", IE_Pressed, this, &AStrategyPawn::OnCameraRotation);
+	PlayerInputComponent->BindAction("RotateCamera", IE_Released, this, &AStrategyPawn::OnCameraRotationReleased);
 
 }
 
