@@ -48,7 +48,7 @@ SourceArt/**/*.png
 SourceArt/**/*.tga
 
 # Builds
-Build/*
+*/Build/*
 
 # Whitelist PakBlacklist-<BuildConfiguration>.txt files
 !Build/*/
@@ -68,6 +68,6 @@ Build/*/**
 */Intermediate/*
 
 # Cache files for the editor to use
-DerivedDataCache/*
-/Binaries/Win64/*.pdb
+*/DerivedDataCache/*
+*/Binaries/
 

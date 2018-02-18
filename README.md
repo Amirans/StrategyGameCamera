@@ -1,6 +1,6 @@
-# [Blueprint] Strategy Camera Movement in Unreal
+# Strategy Camera Movement in Unreal
 
-This is a Blueprint Template for Strategy Camera Movement such as Camera Zoom and Edge scrolling.
+This is a Strategy Camera Movement template with features such as Camera Zoom and Edge Scrolling.  The template is available in C++ and Blueprint.
 
 > **Features**
 > - Camera Zoom
