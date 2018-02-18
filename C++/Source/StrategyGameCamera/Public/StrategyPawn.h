@@ -51,6 +51,14 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = CameraConfig)
 		bool bZoomToMouse = true;
 
+	/* Distance from Each Side to Trigger Edge Scrolling*/
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = CameraConfig)
+		int32 EdgeScrollingSensitivity = 5;
+
+	/* Determines if Camera is Rotating*/
+	UPROPERTY(BlueprintReadOnly, Category = CameraConfig)
+		bool bIsRotatingCamera = false;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -67,6 +75,8 @@ protected:
 	/* Starting Zoom Position */
 	FVector StartZoomPosition = FVector::ZeroVector;
 
+	/* Handles Edge Scrolling */
+	void HandleEdgeScrolling();
 
 public:	
 	// Called every frame

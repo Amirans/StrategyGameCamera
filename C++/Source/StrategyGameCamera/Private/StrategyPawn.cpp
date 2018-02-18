@@ -46,11 +46,48 @@ void AStrategyPawn::BeginPlay()
 		PlayerController->bShowMouseCursor = true;
 }
 
+void AStrategyPawn::HandleEdgeScrolling()
+{
+	if (bIsRotatingCamera)
+		return;
+
+	if (!PlayerController)
+		return;
+
+	float MouseX = 0.0f;
+	float MouseY = 0.0f;
+
+	PlayerController->GetMousePosition(MouseX, MouseY);
+
+	int32 SizeX = 0;
+	int32 SizeY = 0;
+
+	PlayerController->GetViewportSize(SizeX,SizeY);
+
+	if (MouseX < EdgeScrollingSensitivity) //Mouse is Close to Left
+
+		AddRight(-1);	
+
+	else if (MouseX > SizeX - EdgeScrollingSensitivity) //Mouse is Close to Right
+
+		AddRight(1); 
+
+	if (MouseY < EdgeScrollingSensitivity) //Mouse is Close to Top
+
+		AddForward(1);
+
+	else if (MouseY > SizeY - EdgeScrollingSensitivity) //Mouse is Close to Bottom
+
+		AddForward(-1);
+
+}
+
 // Called every frame
 void AStrategyPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	HandleEdgeScrolling();
 }
 
 // Called to bind functionality to input
